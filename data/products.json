@@ -1,1 +1,16 @@
-[]
+[
+    {
+        "id": 1,
+        "title": "Producto de Prueba",
+        "description": "Este es un producto de prueba",
+        "code": "PRUEBA001",
+        "price": 100,
+        "status": true,
+        "stock": 10,
+        "category": "Pruebas",
+        "thumbnails": [
+            "https://ejemplo.com/imagen1.jpg",
+            "https://ejemplo.com/imagen2.jpg"
+        ]
+    }
+]

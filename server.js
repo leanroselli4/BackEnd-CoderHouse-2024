@@ -5,8 +5,13 @@ const port = 8080;
 app.use(express.json());
 
 // Importa los routers
-const productsRouter = require('./routes/products');
-const cartsRouter = require('./routes/carts');
+const productsRouter = require('./routes/products.js');
+const cartsRouter = require('./routes/carts.js');
+
+// Ruta básica para la raíz del servidor
+app.get('/', (req, res) => {
+    res.send('Bienvenido al E-commerce API de Lean Roselli!');
+});
 
 // Usa los routers
 app.use('/api/products', productsRouter);
