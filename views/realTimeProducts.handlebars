@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Time Products</title>
+</head>
+<body>
+    <h1>Lista de Productos en Tiempo Real</h1>
+    <ul id="products-list">
+        {{#each products}}
+        <li>{{this.title}} - {{this.price}}</li>
+        {{/each}}
+    </ul>
+
+    <h2>Añadir Producto</h2>
+    <form id="add-product-form">
+        <input type="text" id="product-name" placeholder="Nombre del producto" required>
+        <input type="number" id="product-price" placeholder="Precio del producto" required>
+        <button type="submit">Añadir</button>
+    </form>
+
+    <h2>Eliminar Producto</h2>
+    <form id="delete-product-form">
+        <input type="number" id="product-index" placeholder="Índice del producto" min="0" required>
+        <button type="submit">Eliminar</button>
+    </form>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        socket.on('updateProducts', (products) => {
+        const productsList = document.getElementById('products-list');
+        productsList.innerHTML = '';
+        products.forEach((product) => {
+            const li = document.createElement('li');
+            li.textContent = `${product.title} - ${product.price}`;
+            productsList.appendChild(li);
+        });
+        });
+
+        document.getElementById('add-product-form').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const productName = document.getElementById('product-name').value;
+            const productPrice = document.getElementById('product-price').value;
+            socket.emit('addProduct', { title: productName, price: productPrice });
+            document.getElementById('product-name').value = '';
+            document.getElementById('product-price').value = '';
+        });
+
+        document.getElementById('delete-product-form').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const productIndex = document.getElementById('product-index').value;
+            socket.emit('deleteProduct', productIndex);
+            document.getElementById('product-index').value = '';
+        });
+    </script>
+</body>
+</html>
