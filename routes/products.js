@@ -4,7 +4,7 @@ const fs = require('fs');
 
 module.exports = (products, io) => {
     const router = express.Router();
-    const productsFilePath = path.join(__dirname, '..', 'productos.json');
+    const productsFilePath = path.join(__dirname, '..', 'products.json');
 
     const readDataFromFile = () => {
         if (fs.existsSync(productsFilePath)) {
