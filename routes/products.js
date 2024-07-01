@@ -1,73 +1,40 @@
-const express = require('express');
-const path = require('path');
-const fs = require('fs');
+// routes/products.js
+import express from 'express';
+import Product from '../models/Product.js';
+import mongoosePaginate from 'mongoose-paginate-v2';
 
-module.exports = (products, io) => {
-    const router = express.Router();
-    const productsFilePath = path.join(__dirname, '..', 'products.json');
+const router = express.Router();
 
-    const readDataFromFile = () => {
-        if (fs.existsSync(productsFilePath)) {
-            const data = fs.readFileSync(productsFilePath);
-            return JSON.parse(data);
-        }
-        return [];
+Product.paginate = mongoosePaginate;
+Product.plugin(mongoosePaginate);
+
+router.get('/', async (req, res) => {
+  try {
+    const { limit = 10, page = 1, sort, query } = req.query;
+    const options = {
+      limit: parseInt(limit),
+      page: parseInt(page),
+      sort: sort ? { price: sort === 'asc' ? 1 : -1 } : {},
     };
 
-    const writeDataToFile = () => {
-        fs.writeFileSync(productsFilePath, JSON.stringify(products, null, 2));
-    };
+    const filter = query ? { category: query } : {};
 
-    // Ruta raíz GET /
-    router.get('/', (req, res) => {
-        const limit = req.query.limit ? parseInt(req.query.limit) : products.length;
-        res.json(products.slice(0, limit));
+    const result = await Product.paginate(filter, options);
+    res.json({
+        status: 'success',
+        payload: result.docs,
+        totalPages: result.totalPages,
+        prevPage: result.prevPage,
+        nextPage: result.nextPage,
+        page: result.page,
+        hasPrevPage: result.hasPrevPage,
+        hasNextPage: result.hasNextPage,
+        prevLink: result.hasPrevPage ? `/api/products?page=${result.prevPage}&limit=${limit}&sort=${sort}&query=${query}` : null,
+        nextLink: result.hasNextPage ? `/api/products?page=${result.nextPage}&limit=${limit}&sort=${sort}&query=${query}` : null,
     });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
 
-    // Ruta GET /:pid
-    router.get('/:pid', (req, res) => {
-        const product = products.find(p => p.id === req.params.pid);
-        res.json(product || { error: 'Producto no encontrado' });
-    });
-
-    // Ruta raíz POST /
-    router.post('/', (req, res) => {
-        const { title, description, code, price, status = true, stock, category, thumbnails = [] } = req.body;
-        const newProduct = {
-            id: products.length ? (parseInt(products[products.length - 1].id) + 1).toString() : '1',
-            title, description, code, price, status, stock, category, thumbnails
-        };
-        products.push(newProduct);
-        writeDataToFile();
-        io.emit('updateProducts', products);
-        res.status(201).json(newProduct);
-    });
-
-    // Ruta PUT /:pid
-    router.put('/:pid', (req, res) => {
-        const product = products.find(p => p.id === req.params.pid);
-        if (product) {
-            Object.assign(product, req.body);
-            writeDataToFile();
-            io.emit('updateProducts', products);
-            res.json(product);
-        } else {
-            res.status(404).json({ error: 'Producto no encontrado' });
-        }
-    });
-
-    // Ruta DELETE /:pid
-    router.delete('/:pid', (req, res) => {
-        const productIndex = products.findIndex(p => p.id === req.params.pid);
-        if (productIndex !== -1) {
-            products.splice(productIndex, 1);
-            writeDataToFile();
-            io.emit('updateProducts', products);
-            res.status(204).send();
-        } else {
-            res.status(404).json({ error: 'Producto no encontrado' });
-        }
-    });
-
-    return router;
-};
+export default router;

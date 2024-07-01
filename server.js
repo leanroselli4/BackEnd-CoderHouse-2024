@@ -1,61 +1,102 @@
-const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
-const { engine } = require('express-handlebars');
-const path = require('path');
+import express from 'express';
+import http from 'http';
+import { Server as socketIo } from 'socket.io';
+import { engine } from 'express-handlebars';
+import path from 'path';
+import mongoose from 'mongoose';
+import productRouter from './routes/products.js';
+import cartRouter from './routes/carts.js';
 
+const PORT = process.env.PORT || 3000;
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
-const port = 8080;
+const io = new socketIo(server);
 
-// Configurar Handlebars
+// Conexión a MongoDB
+mongoose.connect('mongodb://localhost:27017/eshop', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+.then(() => console.log('Connected to MongoDB'))
+.catch((err) => console.error('Could not connect to MongoDB', err));
+
+// Configuración de Express
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Configuración de Handlebars
 app.engine('handlebars', engine());
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 
-// Middleware para JSON
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Datos en memoria (puedes cambiarlos a una base de datos o archivos JSON como en la especificación original)
-let products = [];
-let carts = [];
-
-// Importa los routers
-const productsRouter = require('./routes/products.js')(products, io);
-const cartsRouter = require('./routes/carts.js')(carts);
+// Rutas API
+app.use('/api/products', productRouter);
+app.use('/api/carts', cartRouter);
 
 // Rutas de vistas
-app.get('/', (req, res) => {
-    res.render('home', { products });
+app.get('/', async (req, res) => {
+    try {
+        // Obtener productos desde MongoDB y renderizar la vista
+        const products = await Product.find();
+        res.render('home', { products });
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        res.render('home', { products: [] });
+    }
 });
 
-app.get('/realtimeproducts', (req, res) => {
-    res.render('realTimeProducts', { products });
+app.get('/realtimeproducts', async (req, res) => {
+    try {
+        // Obtener productos desde MongoDB y renderizar la vista
+        const products = await Product.find();
+        res.render('realTimeProducts', { products });
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        res.render('realTimeProducts', { products: [] });
+    }
 });
-
-// Usa los routers
-app.use('/api/products', productsRouter);
-app.use('/api/carts', cartsRouter);
 
 // Manejo de sockets
 io.on('connection', (socket) => {
     console.log('Nuevo cliente conectado');
-    socket.emit('updateProducts', products);
 
-    socket.on('addProduct', (product) => {
-        products.push(product);
-        io.emit('updateProducts', products);
+    // Emitir productos actualizados a todos los clientes
+    const emitUpdatedProducts = async () => {
+        try {
+            const products = await Product.find();
+            io.emit('updateProducts', products);
+        } catch (error) {
+            console.error('Error fetching products for socket update:', error);
+        }
+    };
+
+    // Emitir productos al conectar cliente
+    emitUpdatedProducts();
+
+    socket.on('addProduct', async (product) => {
+        try {
+            // Agregar producto a MongoDB
+            await Product.create(product);
+            // Emitir productos actualizados a todos los clientes
+            emitUpdatedProducts();
+        } catch (error) {
+            console.error('Error adding product:', error);
+        }
     });
 
-    socket.on('deleteProduct', (index) => {
-        products.splice(index, 1);
-        io.emit('updateProducts', products);
+    socket.on('deleteProduct', async (productId) => {
+        try {
+            // Eliminar producto de MongoDB
+            await Product.findByIdAndDelete(productId);
+            // Emitir productos actualizados a todos los clientes
+            emitUpdatedProducts();
+        } catch (error) {
+            console.error('Error deleting product:', error);
+        }
     });
 });
 
 // Iniciar el servidor
-server.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
+server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
