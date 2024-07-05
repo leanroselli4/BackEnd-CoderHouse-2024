@@ -1,12 +1,7 @@
-// routes/products.js
 import express from 'express';
 import Product from '../models/Product.js';
-import mongoosePaginate from 'mongoose-paginate-v2';
 
 const router = express.Router();
-
-Product.paginate = mongoosePaginate;
-Product.plugin(mongoosePaginate);
 
 router.get('/', async (req, res) => {
   try {

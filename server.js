@@ -6,17 +6,20 @@ import path from 'path';
 import mongoose from 'mongoose';
 import productRouter from './routes/products.js';
 import cartRouter from './routes/carts.js';
+import { fileURLToPath } from 'url';
+import Product from './models/Product.js';
 
 const PORT = process.env.PORT || 3000;
 const app = express();
 const server = http.createServer(app);
 const io = new socketIo(server);
 
+// Obtiene la ruta actual del archivo y el directorio
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Conexión a MongoDB
-mongoose.connect('mongodb://localhost:27017/eshop', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+mongoose.connect('mongodb://localhost:27017/eshop')
 .then(() => console.log('Connected to MongoDB'))
 .catch((err) => console.error('Could not connect to MongoDB', err));
 
