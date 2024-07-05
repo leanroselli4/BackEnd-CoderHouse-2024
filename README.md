@@ -1,4 +1,5 @@
 Proyecto eShop
+
 Este proyecto es una aplicación web para una tienda virtual desarrollada con Node.js, Express, MongoDB y Socket.IO. Permite gestionar productos y carritos de compra, además de ofrecer una vista en tiempo real de los productos añadidos.
 
 Iniciar el servidor:
