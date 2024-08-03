@@ -3,7 +3,7 @@ Para iniciar el servidor, usa el siguiente comando en tu terminal:
 bash: npm start
 La aplicación estará disponible en http://localhost:3000.
 
-Estructura del Proyecto:
+Estructura del Proyecto:vb
 -server.js: Archivo principal del servidor Express.
 -models/Product.js: Definición del esquema y modelo de productos utilizando Mongoose.
 -models/Cart.js: Definición del esquema y modelo de carritos utilizando Mongoose.
