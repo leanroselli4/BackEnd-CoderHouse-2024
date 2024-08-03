@@ -8,6 +8,11 @@ import productRouter from './routes/products.js';
 import cartRouter from './routes/carts.js';
 import { fileURLToPath } from 'url';
 import Product from './models/Product.js';
+import User from './models/User.js'; // Importar el modelo User
+import authRouter from './routes/auth.js'; // Importar rutas de autenticación
+import sessionRouter from './routes/sessions.js'; // Importar rutas de sesiones
+import cookieParser from 'cookie-parser';
+import passport from './config/passport.js'; // Importar configuración de Passport
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -26,6 +31,8 @@ mongoose.connect('mongodb://localhost:27017/eshop')
 // Configuración de Express
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(passport.initialize());
 
 // Configuración de Handlebars
 app.engine('handlebars', engine());
@@ -35,6 +42,8 @@ app.set('views', path.join(__dirname, 'views'));
 // Rutas API
 app.use('/api/products', productRouter);
 app.use('/api/carts', cartRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/sessions', sessionRouter);
 
 // Rutas de vistas
 app.get('/', async (req, res) => {
