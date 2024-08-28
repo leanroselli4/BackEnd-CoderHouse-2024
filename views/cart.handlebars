@@ -1,30 +1,35 @@
-<!-- Ubicación: views/cart.handlebars -->
-{{#extends 'layouts/main'}}
-    {{#content 'title'}}Carrito de Compras{{/content}}
-    {{#content 'body'}}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Carrito de Compras</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Inicio</a></li>
+                <li><a href="/users">Gestión de Usuarios</a></li>
+                <li><a href="/products">Gestión de Productos</a></li>
+                <li><a href="/cart">Carrito</a></li>
+                <li><a href="/realtimeproducts">Productos en Tiempo Real</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
         <h2>Tu Carrito</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Precio</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{#each cart.items}}
-                <tr>
-                    <td>{{this.productName}}</td>
-                    <td>{{this.quantity}}</td>
-                    <td>{{this.price}}</td>
-                    <td>
-                        <a href="/cart/remove/{{this.productId}}">Eliminar</a>
-                    </td>
-                </tr>
-                {{/each}}
-            </tbody>
-        </table>
-        <a href="/products">Seguir Comprando</a>
-    {{/content}}
-{{/extends}}
+        <ul>
+            {{#each cart.items}}
+            <li>{{this.product.name}} - {{this.quantity}} x {{this.product.price}}</li>
+            {{/each}}
+        </ul>
+        <p>Total: {{cart.total}}</p>
+    </main>
+    <footer>
+        <p>© 2024 Proyecto de Backend</p>
+    </footer>
+</body>
+</html>

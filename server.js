@@ -4,7 +4,6 @@ import { Server as socketIo } from 'socket.io';
 import { engine } from 'express-handlebars';
 import path from 'path';
 import mongoose from 'mongoose';
-import handlebarsLayouts from 'handlebars-layouts';
 import productRouter from './routes/products.js';
 import cartRouter from './routes/carts.js';
 import authRouter from './routes/auth.js';
@@ -20,27 +19,30 @@ const app = express();
 const server = http.createServer(app);
 const io = new socketIo(server);
 
+// Obtiene la ruta actual del archivo y el directorio
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Conexión a MongoDB
 mongoose.connect('mongodb://localhost:27017/eshop')
     .then(() => console.log('Connected to MongoDB'))
     .catch((err) => console.error('Could not connect to MongoDB', err));
 
+// Configuración de Express
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(passport.initialize());
 
-// Configuración de Handlebars
-const hbs = engine({
-    defaultLayout: 'main', // Si tienes un layout principal
+// Sirviendo archivos estáticos
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Configuración de Handlebars con soporte para layouts y helpers
+app.engine('handlebars', engine({
+    defaultLayout: 'main',
+    layoutsDir: path.join(__dirname, 'views', 'layouts'), // Ruta correcta para los layouts
     extname: '.handlebars',
-});
-
-hbs.handlebars.registerHelper(handlebarsLayouts(hbs.handlebars));
-
-app.engine('handlebars', hbs);
+}));
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -51,39 +53,98 @@ app.use('/api/auth', authRouter);
 app.use('/api/sessions', sessionRouter);
 
 // Rutas de vistas
-app.get('/', (req, res) => res.render('index'));
-app.get('/users', async (req, res) => {
-    const users = await User.find();
-    res.render('users', { users });
-});
-app.get('/products', async (req, res) => {
-    const products = await Product.find();
-    res.render('products', { products });
-});
-app.get('/cart', (req, res) => res.render('cart'));
-app.get('/realtimeproducts', async (req, res) => {
-    const products = await Product.find();
-    res.render('realTimeProducts', { products });
+
+// Página de inicio
+app.get('/', (req, res) => {
+    res.render('index');
 });
 
+// Gestión de Usuarios (CRUD)
+app.get('/users', async (req, res) => {
+    try {
+        const users = await User.find();
+        res.render('users', { users });
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.render('users', { users: [] });
+    }
+});
+
+// Gestión de Productos
+app.get('/products', async (req, res) => {
+    try {
+        const products = await Product.find();
+        res.render('products', { products });
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        res.render('products', { products: [] });
+    }
+});
+
+// Gestión del Carrito
+app.get('/cart', async (req, res) => {
+    try {
+        // Lógica para obtener los productos del carrito del usuario
+        const cart = {}; // Aquí debes integrar la lógica para obtener el carrito del usuario
+        res.render('cart', { cart });
+    } catch (error) {
+        console.error('Error fetching cart:', error);
+        res.render('cart', { cart: {} });
+    }
+});
+
+// Productos en Tiempo Real
+app.get('/realtimeproducts', async (req, res) => {
+    try {
+        const products = await Product.find();
+        res.render('realTimeProducts', { products });
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        res.render('realTimeProducts', { products: [] });
+    }
+});
+
+// Manejo de sockets
 io.on('connection', (socket) => {
     console.log('Nuevo cliente conectado');
+
+    // Emitir productos actualizados a todos los clientes
     const emitUpdatedProducts = async () => {
-        const products = await Product.find();
-        io.emit('updateProducts', products);
+        try {
+            const products = await Product.find();
+            io.emit('updateProducts', products);
+        } catch (error) {
+            console.error('Error fetching products for socket update:', error);
+        }
     };
+
+    // Emitir productos al conectar cliente
     emitUpdatedProducts();
 
     socket.on('addProduct', async (product) => {
-        await Product.create(product);
-        emitUpdatedProducts();
+        try {
+            // Agregar producto a MongoDB
+            await Product.create(product);
+            // Emitir productos actualizados a todos los clientes
+            emitUpdatedProducts();
+        } catch (error) {
+            console.error('Error adding product:', error);
+        }
     });
+
     socket.on('deleteProduct', async (productId) => {
-        await Product.findByIdAndDelete(productId);
-        emitUpdatedProducts();
+        try {
+            // Eliminar producto de MongoDB
+            await Product.findByIdAndDelete(productId);
+            // Emitir productos actualizados a todos los clientes
+            emitUpdatedProducts();
+        } catch (error) {
+            console.error('Error deleting product:', error);
+        }
     });
 });
 
+// Iniciar el servidor
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
