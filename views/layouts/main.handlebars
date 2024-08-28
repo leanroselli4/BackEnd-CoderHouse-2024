@@ -1,11 +1,31 @@
+<!-- Ubicación: views/layouts/main.handlebars -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{title}}</title>
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-    {{{body}}}
+    <header>
+        <h1>{{title}}</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Inicio</a></li>
+                <li><a href="/users">Gestión de Usuarios</a></li>
+                <li><a href="/products">Gestión de Productos</a></li>
+                <li><a href="/cart">Carrito</a></li>
+                <li><a href="/realTimeProducts">Productos en Tiempo Real</a></li>
+                <!-- Añadir más enlaces según las funciones de tu proyecto -->
+            </ul>
+        </nav>
+    </header>
+    <main>
+        {{{body}}}
+    </main>
+    <footer>
+        <p>© 2024 Proyecto de Backend</p>
+    </footer>
 </body>
 </html>

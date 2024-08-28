@@ -1,0 +1,33 @@
+<!-- Ubicación: views/users.handlebars -->
+{{#extends 'layouts/main'}}
+    {{#content 'title'}}Gestión de Usuarios{{/content}}
+    {{#content 'body'}}
+        <h2>Lista de Usuarios</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Edad</th>
+                    <th>Rol</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each users}}
+                <tr>
+                    <td>{{this.firstName}} {{this.lastName}}</td>
+                    <td>{{this.email}}</td>
+                    <td>{{this.age}}</td>
+                    <td>{{this.role}}</td>
+                    <td>
+                        <a href="/users/edit/{{this.id}}">Editar</a> | 
+                        <a href="/users/delete/{{this.id}}" onclick="return confirm('¿Estás seguro de que deseas eliminar este usuario?')">Eliminar</a>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+        <a href="/users/create">Crear Nuevo Usuario</a>
+    {{/content}}
+{{/extends}}
