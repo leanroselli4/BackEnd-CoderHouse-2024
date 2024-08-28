@@ -3,41 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Time Products</title>
+    <title>Productos en Tiempo Real</title>
+    <link rel="stylesheet" href="/css/styles.css"> <!-- Asumiendo que tienes un archivo CSS llamado styles.css -->
 </head>
 <body>
-    <h1>Lista de Productos en Tiempo Real</h1>
-    <ul id="products-list">
-        {{#each products}}
-        <li>{{this.title}} - {{this.price}}</li>
-        {{/each}}
-    </ul>
+    <header>
+        <h1>Lista de Productos en Tiempo Real</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Inicio</a></li>
+                <li><a href="/products">Productos</a></li>
+                <li><a href="/users">Usuarios</a></li>
+                <li><a href="/cart">Carrito</a></li>
+            </ul>
+        </nav>
+    </header>
 
-    <h2>Añadir Producto</h2>
-    <form id="add-product-form">
-        <input type="text" id="product-name" placeholder="Nombre del producto" required>
-        <input type="number" id="product-price" placeholder="Precio del producto" required>
-        <button type="submit">Añadir</button>
-    </form>
+    <main>
+        <section>
+            <ul id="products-list">
+                {{#each products}}
+                <li>{{this.title}} - ${{this.price}}</li>
+                {{/each}}
+            </ul>
+        </section>
 
-    <h2>Eliminar Producto</h2>
-    <form id="delete-product-form">
-        <input type="number" id="product-index" placeholder="Índice del producto" min="0" required>
-        <button type="submit">Eliminar</button>
-    </form>
+        <section>
+            <h2>Añadir Producto</h2>
+            <form id="add-product-form">
+                <input type="text" id="product-name" placeholder="Nombre del producto" required>
+                <input type="number" id="product-price" placeholder="Precio del producto" required>
+                <button type="submit">Añadir</button>
+            </form>
+        </section>
+
+        <section>
+            <h2>Eliminar Producto</h2>
+            <form id="delete-product-form">
+                <input type="text" id="product-id" placeholder="ID del producto" required>
+                <button type="submit">Eliminar</button>
+            </form>
+        </section>
+    </main>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
 
         socket.on('updateProducts', (products) => {
-        const productsList = document.getElementById('products-list');
-        productsList.innerHTML = '';
-        products.forEach((product) => {
-            const li = document.createElement('li');
-            li.textContent = `${product.title} - ${product.price}`;
-            productsList.appendChild(li);
-        });
+            const productsList = document.getElementById('products-list');
+            productsList.innerHTML = '';
+            products.forEach((product) => {
+                const li = document.createElement('li');
+                li.textContent = `${product.title} - $${product.price}`;
+                productsList.appendChild(li);
+            });
         });
 
         document.getElementById('add-product-form').addEventListener('submit', (event) => {
@@ -51,10 +71,11 @@
 
         document.getElementById('delete-product-form').addEventListener('submit', (event) => {
             event.preventDefault();
-            const productIndex = document.getElementById('product-index').value;
-            socket.emit('deleteProduct', productIndex);
-            document.getElementById('product-index').value = '';
+            const productId = document.getElementById('product-id').value;
+            socket.emit('deleteProduct', productId);
+            document.getElementById('product-id').value = '';
         });
     </script>
 </body>
 </html>
+

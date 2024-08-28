@@ -1,0 +1,31 @@
+<!-- Ubicación: views/products.handlebars -->
+{{#extends 'layouts/main'}}
+    {{#content 'title'}}Gestión de Productos{{/content}}
+    {{#content 'body'}}
+        <h2>Lista de Productos</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Precio</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each products}}
+                <tr>
+                    <td>{{this.name}}</td>
+                    <td>{{this.description}}</td>
+                    <td>{{this.price}}</td>
+                    <td>
+                        <a href="/products/edit/{{this.id}}">Editar</a> | 
+                        <a href="/products/delete/{{this.id}}" onclick="return confirm('¿Estás seguro de que deseas eliminar este producto?')">Eliminar</a>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+        <a href="/products/create">Crear Nuevo Producto</a>
+    {{/content}}
+{{/extends}}

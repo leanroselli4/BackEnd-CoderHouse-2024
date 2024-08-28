@@ -1,0 +1,30 @@
+<!-- Ubicación: views/cart.handlebars -->
+{{#extends 'layouts/main'}}
+    {{#content 'title'}}Carrito de Compras{{/content}}
+    {{#content 'body'}}
+        <h2>Tu Carrito</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each cart.items}}
+                <tr>
+                    <td>{{this.productName}}</td>
+                    <td>{{this.quantity}}</td>
+                    <td>{{this.price}}</td>
+                    <td>
+                        <a href="/cart/remove/{{this.productId}}">Eliminar</a>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+        <a href="/products">Seguir Comprando</a>
+    {{/content}}
+{{/extends}}
