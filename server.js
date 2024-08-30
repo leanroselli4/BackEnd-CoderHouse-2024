@@ -13,6 +13,7 @@ import Product from './models/Product.js';
 import User from './models/User.js';
 import cookieParser from 'cookie-parser';
 import passport from './config/passport.js';
+import methodOverride from 'method-override'; // Importar method-override
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -32,6 +33,7 @@ mongoose.connect('mongodb://localhost:27017/eshop')
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(methodOverride('_method')); // Configurar method-override
 app.use(passport.initialize());
 
 // Sirviendo archivos estáticos
@@ -40,8 +42,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Configuración de Handlebars con soporte para layouts y helpers
 app.engine('handlebars', engine({
     defaultLayout: 'main',
-    layoutsDir: path.join(__dirname, 'views', 'layouts'), // Ruta correcta para los layouts
+    layoutsDir: path.join(__dirname, 'views', 'layouts'),
     extname: '.handlebars',
+    runtimeOptions: {
+        allowProtoPropertiesByDefault: true
+    }
 }));
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
@@ -63,10 +68,22 @@ app.get('/', (req, res) => {
 app.get('/users', async (req, res) => {
     try {
         const users = await User.find();
-        res.render('users', { users });
+        const usersData = users.map(user => user.toObject());
+        res.render('users', { users: usersData });
     } catch (error) {
         console.error('Error fetching users:', error);
         res.render('users', { users: [] });
+    }
+});
+
+app.post('/users/delete/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await User.findByIdAndDelete(id);
+        res.redirect('/users'); // Redirige a la lista de usuarios después de la eliminación
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.redirect('/users'); // Redirige en caso de error
     }
 });
 

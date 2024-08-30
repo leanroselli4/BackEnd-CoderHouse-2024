@@ -15,13 +15,12 @@
                 <li><a href="/users">Gestión de Usuarios</a></li>
                 <li><a href="/products">Gestión de Productos</a></li>
                 <li><a href="/cart">Carrito</a></li>
-                <li><a href="/realtimeproducts">Productos en Tiempo Real</a></li>
             </ul>
         </nav>
     </header>
     <main>
         <h2>Lista de Productos</h2>
-        <ul id="products-list">
+        <ul id="product-list">
             {{#each products}}
             <li>{{this.name}} - {{this.price}}</li>
             {{/each}}
@@ -30,19 +29,22 @@
     <footer>
         <p>© 2024 Proyecto de Backend</p>
     </footer>
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
+
         socket.on('updateProducts', (products) => {
-            const productsList = document.getElementById('products-list');
-            productsList.innerHTML = '';
+            const productList = document.getElementById('product-list');
+            productList.innerHTML = '';
             products.forEach(product => {
                 const li = document.createElement('li');
                 li.textContent = `${product.name} - ${product.price}`;
-                productsList.appendChild(li);
+                productList.appendChild(li);
             });
         });
     </script>
 </body>
 </html>
+
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrito de Compras</title>
+    <title>Carrito</title>
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
@@ -14,19 +14,17 @@
                 <li><a href="/">Inicio</a></li>
                 <li><a href="/users">Gestión de Usuarios</a></li>
                 <li><a href="/products">Gestión de Productos</a></li>
-                <li><a href="/cart">Carrito</a></li>
                 <li><a href="/realtimeproducts">Productos en Tiempo Real</a></li>
             </ul>
         </nav>
     </header>
     <main>
-        <h2>Tu Carrito</h2>
+        <h2>Productos en el Carrito</h2>
         <ul>
-            {{#each cart.items}}
-            <li>{{this.product.name}} - {{this.quantity}} x {{this.product.price}}</li>
+            {{#each cart.products}}
+            <li>{{this.name}} - {{this.price}}</li>
             {{/each}}
         </ul>
-        <p>Total: {{cart.total}}</p>
     </main>
     <footer>
         <p>© 2024 Proyecto de Backend</p>
