@@ -22,12 +22,25 @@
         <h2>Productos en el Carrito</h2>
         <ul>
             {{#each cart.products}}
-            <li>{{this.name}} - {{this.price}}</li>
+            <li>{{this.product.name}} - {{this.product.price}} - Cantidad: {{this.quantity}}</li>
             {{/each}}
         </ul>
+        <form action="/api/carts/{{cart._id}}/purchase" method="post">
+            <button type="submit">Finalizar Compra</button>
+        </form>
+        {{#if errors}}
+        <h3>Errores</h3>
+        <ul>
+            {{#each errors}}
+            <li>Producto {{this}} no pudo ser procesado.</li>
+            {{/each}}
+        </ul>
+        {{/if}}
     </main>
     <footer>
         <p>© 2024 Proyecto de Backend</p>
     </footer>
 </body>
 </html>
+
+
