@@ -8,6 +8,7 @@ import productRouter from './routes/products.js';
 import cartRouter from './routes/carts.js';
 import authRouter from './routes/auth.js';
 import sessionRouter from './routes/sessions.js';
+import mocksRouter from './routes/mocks.router.js'; // Importar el nuevo router
 import { fileURLToPath } from 'url';
 import Product from './models/Product.js';
 import User from './models/User.js';
@@ -56,6 +57,7 @@ app.use('/api/products', productRouter);
 app.use('/api/carts', cartRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/sessions', sessionRouter);
+app.use('/api/mocks', mocksRouter); // Agregar el nuevo router para mocks
 
 // Rutas de vistas
 
@@ -101,7 +103,7 @@ app.get('/products', async (req, res) => {
 // Gestión del Carrito
 app.get('/cart', async (req, res) => {
     try {
-        // Lógica para obtener los productos del carrito del usuarioo
+        // Lógica para obtener los productos del carrito del usuario
         const cart = {}; // Aquí debes integrar la lógica para obtener el carrito del usuario
         res.render('cart', { cart });
     } catch (error) {
