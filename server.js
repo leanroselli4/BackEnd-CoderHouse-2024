@@ -101,7 +101,7 @@ app.get('/products', async (req, res) => {
 // Gestión del Carrito
 app.get('/cart', async (req, res) => {
     try {
-        // Lógica para obtener los productos del carrito del usuario
+        // Lógica para obtener los productos del carrito del usuarioo
         const cart = {}; // Aquí debes integrar la lógica para obtener el carrito del usuario
         res.render('cart', { cart });
     } catch (error) {
