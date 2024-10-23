@@ -7,7 +7,33 @@ import { v4 as uuidv4 } from 'uuid';
 
 const router = express.Router();
 
-// DELETE api/carts/:cid/products/:pid
+/**
+ * @swagger
+ * /carts/{cid}/products/{pid}:
+ *   delete:
+ *     summary: Remove product from cart
+ *     description: Deletes a product from a cart.
+ *     parameters:
+ *       - in: path
+ *         name: cid
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Cart ID
+ *       - in: path
+ *         name: pid
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Product ID
+ *     responses:
+ *       200:
+ *         description: Product removed from cart
+ *       404:
+ *         description: Cart not found
+ *       500:
+ *         description: Internal server error
+ */
 router.delete('/:cid/products/:pid', async (req, res) => {
   try {
     const { cid, pid } = req.params;
@@ -22,7 +48,43 @@ router.delete('/:cid/products/:pid', async (req, res) => {
   }
 });
 
-// PUT api/carts/:cid
+/**
+ * @swagger
+ * /carts/{cid}:
+ *   put:
+ *     summary: Update cart products
+ *     description: Updates the products in a cart.
+ *     parameters:
+ *       - in: path
+ *         name: cid
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Cart ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               products:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     product:
+ *                       type: string
+ *                     quantity:
+ *                       type: integer
+ *     responses:
+ *       200:
+ *         description: Cart updated successfully
+ *       404:
+ *         description: Cart not found
+ *       500:
+ *         description: Internal server error
+ */
 router.put('/:cid', async (req, res) => {
   try {
     const { cid } = req.params;
@@ -36,7 +98,42 @@ router.put('/:cid', async (req, res) => {
   }
 });
 
-// PUT api/carts/:cid/products/:pid
+/**
+ * @swagger
+ * /carts/{cid}/products/{pid}:
+ *   put:
+ *     summary: Update product quantity in cart
+ *     description: Updates the quantity of a product in the cart.
+ *     parameters:
+ *       - in: path
+ *         name: cid
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Cart ID
+ *       - in: path
+ *         name: pid
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Product ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               quantity:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Product quantity updated in cart
+ *       404:
+ *         description: Cart not found
+ *       500:
+ *         description: Internal server error
+ */
 router.put('/:cid/products/:pid', async (req, res) => {
   try {
     const { cid, pid } = req.params;
@@ -57,7 +154,27 @@ router.put('/:cid/products/:pid', async (req, res) => {
   }
 });
 
-// DELETE api/carts/:cid
+/**
+ * @swagger
+ * /carts/{cid}:
+ *   delete:
+ *     summary: Remove all products from cart
+ *     description: Deletes all products from a cart.
+ *     parameters:
+ *       - in: path
+ *         name: cid
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Cart ID
+ *     responses:
+ *       200:
+ *         description: All products removed from cart
+ *       404:
+ *         description: Cart not found
+ *       500:
+ *         description: Internal server error
+ */
 router.delete('/:cid', async (req, res) => {
   try {
     const { cid } = req.params;
@@ -72,7 +189,27 @@ router.delete('/:cid', async (req, res) => {
   }
 });
 
-// GET api/carts/:cid
+/**
+ * @swagger
+ * /carts/{cid}:
+ *   get:
+ *     summary: Get cart details
+ *     description: Retrieves details of a specific cart.
+ *     parameters:
+ *       - in: path
+ *         name: cid
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Cart ID
+ *     responses:
+ *       200:
+ *         description: Cart details
+ *       404:
+ *         description: Cart not found
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/:cid', async (req, res) => {
   try {
     const { cid } = req.params;
@@ -85,7 +222,42 @@ router.get('/:cid', async (req, res) => {
   }
 });
 
-// POST api/carts/:cid/products/:pid
+/**
+ * @swagger
+ * /carts/{cid}/products/{pid}:
+ *   post:
+ *     summary: Add product to cart
+ *     description: Adds a product to a specific cart or increases its quantity.
+ *     parameters:
+ *       - in: path
+ *         name: cid
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Cart ID
+ *       - in: path
+ *         name: pid
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Product ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               quantity:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Product added to cart
+ *       404:
+ *         description: Cart not found
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/:cid/products/:pid', async (req, res) => {
   try {
     const { cid, pid } = req.params;
@@ -96,19 +268,38 @@ router.post('/:cid/products/:pid', async (req, res) => {
 
     const productIndex = cart.products.findIndex(p => p.product.toString() === pid);
     if (productIndex !== -1) {
-      // Incrementar cantidad si el producto ya existe en el carrito
       cart.products[productIndex].quantity += quantity;
     } else {
       cart.products.push({ product: pid, quantity });
     }
     await cart.save();
-    res.redirect('/cart');  // Redirige a la vista de carrito
+    res.redirect('/cart');
   } catch (error) {
     res.status(500).json({ status: 'error', message: error.message });
   }
 });
 
-// POST api/carts/:cid/purchase
+/**
+ * @swagger
+ * /carts/{cid}/purchase:
+ *   post:
+ *     summary: Purchase the cart
+ *     description: Processes a purchase of the cart, creating a ticket and updating stock.
+ *     parameters:
+ *       - in: path
+ *         name: cid
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Cart ID
+ *     responses:
+ *       200:
+ *         description: Purchase completed
+ *        404:
+ *         description: Cart not found
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/:cid/purchase', async (req, res) => {
   try {
     const { cid } = req.params;
@@ -129,16 +320,14 @@ router.post('/:cid/purchase', async (req, res) => {
       }
     }
 
-    // Crear el ticket
     const ticket = new Ticket({
       code: uuidv4(),
       purchase_datetime: new Date(),
       amount: purchasedProducts.reduce((total, item) => total + item.quantity * item.product.price, 0),
-      purchaser: req.user.email // Asegúrate de tener acceso al usuario actual
+      purchaser: req.user.email
     });
     await ticket.save();
 
-    // Actualizar el carrito
     cart.products = cart.products.filter(item => failedProducts.includes(item.product.toString()));
     await cart.save();
 
@@ -153,3 +342,4 @@ router.post('/:cid/purchase', async (req, res) => {
 });
 
 export default router;
+

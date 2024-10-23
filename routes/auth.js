@@ -8,28 +8,51 @@ import { isAdmin } from '../middleware/authorization.js';
 
 const router = express.Router();
 
-// Ruta para registrar un usuario
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: Register a new user
+ *     description: Creates a new user in the system.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               first_name:
+ *                 type: string
+ *               last_name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               age:
+ *                 type: integer
+ *               password:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *       400:
+ *         description: Missing required fields
+ *       409:
+ *         description: User already exists
+ *       500:
+ *         description: Error registering user
+ */
 router.post('/register', async (req, res) => {
   try {
     console.log(req.body);
-
     const { first_name, last_name, email, age, password } = req.body;
-
-    // Asegurarse de que todos los campos requeridos estén presentes
     if (!first_name || !last_name || !email || !age || !password) {
       return res.status(400).send('Missing required fields');
     }
-
-    // Verificar si el usuario ya existe
     const existingUser = await UserRepository.getUserByEmail(email);
     if (existingUser) {
       return res.status(409).send('User already exists');
     }
-
-    // Hashear la contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Crear un nuevo usuario
     const newUser = await UserRepository.createUser({ first_name, last_name, email, age, password: hashedPassword });
     res.status(201).send('User registered successfully');
   } catch (error) {
@@ -38,7 +61,20 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Ruta para mostrar todos los usuarios (solo admin)
+/**
+ * @swagger
+ * /auth/users:
+ *   get:
+ *     summary: Get all users (Admin only)
+ *     description: Retrieve a list of all users.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of users
+ *       500:
+ *         description: Error retrieving users
+ */
 router.get('/users', passport.authenticate('jwt', { session: false }), isAdmin, async (req, res) => {
   try {
     const users = await UserRepository.getAllUsers();
@@ -49,7 +85,20 @@ router.get('/users', passport.authenticate('jwt', { session: false }), isAdmin, 
   }
 });
 
-// Ruta para obtener el usuario actual (solo autenticado)
+/**
+ * @swagger
+ * /auth/current:
+ *   get:
+ *     summary: Get current user
+ *     description: Retrieve information about the currently logged-in user.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User information
+ *       500:
+ *         description: Error fetching user
+ */
 router.get('/current', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const user = await UserRepository.getUserById(req.user._id);

@@ -3,7 +3,46 @@ import Product from '../models/Product.js';
 
 const router = express.Router();
 
-// Ruta para obtener productos con paginación, filtrado y ordenamiento
+/**
+ * @swagger
+ * /products:
+ *   get:
+ *     summary: Obtiene una lista de productos con paginación, filtrado y ordenamiento.
+ *     description: Permite obtener productos paginados, filtrados por categoría y ordenados por precio.
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Número de productos por página.
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Página actual.
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *         description: Ordena los productos por precio de forma ascendente (asc) o descendente (desc).
+ *       - in: query
+ *         name: query
+ *         schema:
+ *           type: string
+ *         description: Filtra los productos por categoría.
+ *     responses:
+ *       200:
+ *         description: Lista de productos obtenida correctamente.
+ *         content:
+ *           text/html:
+ *             schema:
+ *               type: string
+ *       500:
+ *         description: Error al obtener los productos.
+ */
 router.get('/', async (req, res) => {
   try {
     const { limit = 10, page = 1, sort, query } = req.query;
@@ -30,7 +69,33 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Ruta para crear un nuevo producto
+/**
+ * @swagger
+ * /products:
+ *   post:
+ *     summary: Crea un nuevo producto.
+ *     description: Permite crear un nuevo producto con nombre, precio, categoría y descripción.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *               category:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Producto creado exitosamente.
+ *       500:
+ *         description: Error al crear el producto.
+ */
 router.post('/', async (req, res) => {
   try {
     const { name, price, category, description } = req.body;
@@ -43,7 +108,25 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Ruta para eliminar un producto
+/**
+ * @swagger
+ * /products/{id}:
+ *   delete:
+ *     summary: Elimina un producto por su ID.
+ *     description: Permite eliminar un producto usando su ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID del producto a eliminar.
+ *     responses:
+ *       200:
+ *         description: Producto eliminado exitosamente.
+ *       500:
+ *         description: Error al eliminar el producto.
+ */
 router.delete('/:id', async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
