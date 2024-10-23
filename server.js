@@ -15,11 +15,30 @@ import User from './models/User.js';
 import cookieParser from 'cookie-parser';
 import passport from './config/passport.js';
 import methodOverride from 'method-override'; // Importar method-override
+import swaggerJSDoc from 'swagger-jsdoc'; // Importar Swagger
+import swaggerUi from 'swagger-ui-express'; // Importar Swagger UI
 
 const PORT = process.env.PORT || 3000;
 const app = express();
 const server = http.createServer(app);
 const io = new socketIo(server);
+
+// Swagger configuración
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Eshop API',
+            version: '1.0.0',
+            description: 'API para la gestión de Usuarios, Productos y Adopciones',
+        },
+    },
+    apis: ['./routes/*.js'], // Asegúrate de ajustar la ruta si es necesario
+};
+
+// Inicializar Swagger
+const swaggerDocs = swaggerJSDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Obtiene la ruta actual del archivo y el directorio
 const __filename = fileURLToPath(import.meta.url);
